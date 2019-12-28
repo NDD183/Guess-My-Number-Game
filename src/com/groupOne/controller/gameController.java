@@ -14,6 +14,7 @@ import javafx.scene.text.Text;
 import java.awt.peer.ChoicePeer;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ThreadLocalRandom;
@@ -64,6 +65,7 @@ public class gameController implements Initializable {
     private  static List<String> tempHolder = new ArrayList<>();
     private ObservableList<Result> resultData ;
     private Boolean isFirst = true;
+    private List<Integer>  testGuess = null;
 
 
     @Override
@@ -135,7 +137,7 @@ public class gameController implements Initializable {
         // Get result from user input
         infoList = getResult(snumberList, rivalGuessList);
         // Load table to show result in UI
-        resultList.add(new Result(stepsNumber,Integer.parseInt(gnumber), infoList.get(0), infoList.get(1), infoList.get(2)));
+        resultList.add(new Result(stepsNumber, gnumber, infoList.get(0), infoList.get(1), infoList.get(2)));
         loadTable();
         // Reset all list
         rivalGuessList = new ArrayList<>();
@@ -166,7 +168,7 @@ public class gameController implements Initializable {
         // Increase steps
         stepsNumber++;
         // Load table to show result in UI
-        resultList.add(new Result(stepsNumber,Integer.parseInt(firstgField.getText()), testResultList.get(0), testResultList.get(1), testResultList.get(2)));
+        resultList.add(new Result(stepsNumber,firstgField.getText(), testResultList.get(0), testResultList.get(1), testResultList.get(2)));
         loadTable();
         // Check if already won !!!
         if(testResultList.get(0).equals(4)) {
@@ -231,6 +233,8 @@ public class gameController implements Initializable {
         missBox.setValue(0);
         nextGuessBtn.setDisable(false);
         nextGuessBtn.setText("Get Next Guess");
+        guessBtn.setText("Generate First Guess");
+
         // Reset all variable
         snumberList = new ArrayList<>();
         infoList = new ArrayList<>();
@@ -275,6 +279,8 @@ public class gameController implements Initializable {
     public String guessNumber(String currentGuess, List<Integer> result) {
 
         List<Integer> tempResult;
+        List<String> possible = new ArrayList<>();
+        List<String> impossible = new ArrayList<>();
         if(isFirst) {
             holder = generateHolder();
             isFirst = false;
@@ -286,17 +292,21 @@ public class gameController implements Initializable {
 
             if(result.get(0).equals(tempResult.get(0)) && result.get(1).equals(tempResult.get(1))) {
                 tempHolder.add(holder.get(i));
+                possible.add(holder.get(i));
+            } else {
+                impossible.add(holder.get(i));
             }
         }
         holder.clear();
         for(i = 0; i < tempHolder.size(); i++) {
             holder.add(tempHolder.get(i));
         }
-        System.out.println("Current Array Size: " + holder.size());
+       // System.out.println("Current Array Size: " + holder.size());
         tempHolder.clear();
-        int index = ThreadLocalRandom.current().nextInt(0, (holder.size()));
+       // int index = ThreadLocalRandom.current().nextInt(0, (holder.size()));
         //return holder.get(holder.size() - 1);
-        return holder.get(index);
+        return guessBestNumber(impossible, possible);
+        //return holder.get(index);
     }
 
 
@@ -325,6 +335,42 @@ public class gameController implements Initializable {
         miss = 4 - resultList.get(0) - resultList.get(1);
         resultList.set(2, miss);
         return resultList;
+    }
+
+
+
+
+    public String guessBestNumber(List<String> impossible, List<String> possible) {
+        int minimumEliminated = -1;
+        String returnString = "";
+        List<Integer> bestGuess = null;
+        List<Integer> result = null;
+        List<String> unused = new LinkedList<>(possible);
+        unused.addAll(impossible);
+        for (String a : unused) {
+          //  System.out.println(a);
+            int[][] minMaxTable = new int[5][5];
+            for (String b : possible) {
+              //  System.out.println(b);
+                result = getResult(stringTransform(a),stringTransform(b));
+                minMaxTable[result.get(0)][result.get(1)]++;
+            }
+            int mostHits = -1;
+            for (int[] row : minMaxTable) {
+                for (int i : row) {
+                    mostHits = Integer.max(i, mostHits);
+                }
+            }
+            int score = possible.size() - mostHits;
+            if (score > minimumEliminated) {
+                minimumEliminated = score;
+                bestGuess = stringTransform(String.valueOf(a));
+            }
+        }
+        testGuess = bestGuess;
+      //  System.out.println("Enter secret code: " + testGuess);
+        returnString = bestGuess.get(0) + ""+bestGuess.get(1) + "" +bestGuess.get(2) + "" + bestGuess.get(3);
+        return returnString;
     }
 
 }

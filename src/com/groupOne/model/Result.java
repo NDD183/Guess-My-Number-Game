@@ -2,12 +2,12 @@ package com.groupOne.model;
 
 public class Result {
     int stepNumber;
-    int guessNumber;
+    String guessNumber;
     int strikeNumber;
     int hitNumber;
     int missNumber;
 
-    public Result(int stepNumber, int guessNumber, int strikeNumber, int hitNumber, int missNumber) {
+    public Result(int stepNumber, String guessNumber, int strikeNumber, int hitNumber, int missNumber) {
         this.stepNumber = stepNumber;
         this.guessNumber = guessNumber;
         this.strikeNumber = strikeNumber;
@@ -24,11 +24,11 @@ public class Result {
         this.stepNumber = stepNumber;
     }
 
-    public int getGuessNumber() {
+    public String getGuessNumber() {
         return guessNumber;
     }
 
-    public void setGuessNumber(int guessNumber) {
+    public void setGuessNumber(String guessNumber) {
         this.guessNumber = guessNumber;
     }
 
