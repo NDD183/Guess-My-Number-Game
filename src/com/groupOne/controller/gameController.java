@@ -267,6 +267,7 @@ public class gameController implements Initializable {
             strikeBox.setValue(0);
             hitBox.setValue(0);
             missBox.setValue(0);
+            isFirst = true;
             return firstgField.getText();
         } else if (result.get() == resetBtn) {
             // ... user chose "new game"
