@@ -11,12 +11,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
 
+import javax.swing.text.StyledEditorKit;
 import java.awt.peer.ChoicePeer;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 
@@ -132,17 +130,24 @@ public class gameController implements Initializable {
         gnumber = gnumberField.getText();
         // Increase steps
         stepsNumber++;
-        // Transform type
-        rivalGuessList = stringTransform(gnumber);
-        // Get result from user input
-        infoList = getResult(snumberList, rivalGuessList);
-        // Load table to show result in UI
-        resultList.add(new Result(stepsNumber, gnumber, infoList.get(0), infoList.get(1), infoList.get(2)));
-        loadTable();
-        // Reset all list
-        rivalGuessList = new ArrayList<>();
-        infoList = new ArrayList<>();
-
+        if(isValidNumber(gnumber)) {
+            // Transform type
+            rivalGuessList = stringTransform(gnumber);
+            // Get result from user input
+            infoList = getResult(snumberList, rivalGuessList);
+            // Load table to show result in UI
+            resultList.add(new Result(stepsNumber, gnumber, infoList.get(0), infoList.get(1), infoList.get(2)));
+            loadTable();
+            // Reset all list
+            rivalGuessList = new ArrayList<>();
+            infoList = new ArrayList<>();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error Message");
+            alert.setHeaderText("Invalid input from user");
+            alert.setContentText("The number provided by rivals is not in correct format");
+            alert.showAndWait();
+        }
     }
 
     public void generatefgClicked(ActionEvent actionEvent) {
@@ -246,9 +251,48 @@ public class gameController implements Initializable {
 
     }
 
+    public String showAlert() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error Message");
+        alert.setHeaderText("Wrong result gained from rivals");
+        alert.setContentText("The number of strike, hits, and miss provided by rivals are invalid");
+
+        ButtonType tryBtn = new ButtonType("Try Again !!!");
+        ButtonType resetBtn = new ButtonType("New Game");
+        alert.getButtonTypes().setAll(tryBtn, resetBtn);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == tryBtn) {
+            // ... user chose "try again"
+            strikeBox.setValue(0);
+            hitBox.setValue(0);
+            missBox.setValue(0);
+            return firstgField.getText();
+        } else if (result.get() == resetBtn) {
+            // ... user chose "new game"
+            clearAll();
+        }
+        return "";
+    }
+
 
 
     // LOGIC FUNCTIONS
+
+    public static Boolean isValidNumber(String input) {
+        // Loop through the string to check each character
+        if (input.length() != 4) {
+            return Boolean.FALSE;
+        }
+        for (int i = 0; i < input.length(); i++) {
+            char d = input.charAt(i);
+            // Check if the character is a digits
+            if (d >= '0' && d < '9') {} else {
+                return Boolean.FALSE;
+            }
+        }
+        return Boolean.TRUE;
+    }
 
     public List<Integer> generateNumber() {
         List<Integer> generatedNumber = new ArrayList<>();
@@ -300,6 +344,9 @@ public class gameController implements Initializable {
         holder.clear();
         for(i = 0; i < tempHolder.size(); i++) {
             holder.add(tempHolder.get(i));
+        }
+        if(holder.isEmpty()) {
+            return  showAlert();
         }
        // System.out.println("Current Array Size: " + holder.size());
         tempHolder.clear();
