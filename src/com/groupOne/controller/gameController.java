@@ -48,6 +48,8 @@ public class gameController implements Initializable {
     @FXML
     Button nextGuessBtn;
     @FXML
+    Button resBtn;
+    @FXML
     Text sNumberText;
 
     private String snumber, gnumber, firstGuess, nextGuess ;
@@ -102,18 +104,18 @@ public class gameController implements Initializable {
         snumberList.add(5);
 
         // Assume the secret number is 1000
-        testsNumber.add(1);
-        testsNumber.add(2);
-        testsNumber.add(3);
+        testsNumber.add(9);
+        testsNumber.add(5);
         testsNumber.add(4);
+        testsNumber.add(1);
 
-        sNumberText.setText("1234");
+        sNumberText.setText(testsNumber.get(0) + ""+testsNumber.get(1) + "" +testsNumber.get(2) + "" + testsNumber.get(3));
 
         // Set default first guess number
-        testfGuessNumber.add(3);
         testfGuessNumber.add(2);
-        testfGuessNumber.add(1);
-        testfGuessNumber.add(0);
+        testfGuessNumber.add(3);
+        testfGuessNumber.add(9);
+        testfGuessNumber.add(4);
 
     }
 
@@ -127,6 +129,7 @@ public class gameController implements Initializable {
     }
 
     public void resultClicked(ActionEvent actionEvent) {
+        // Get user input
         gnumber = gnumberField.getText();
         // Increase steps
         stepsNumber++;
@@ -138,6 +141,11 @@ public class gameController implements Initializable {
             // Load table to show result in UI
             resultList.add(new Result(stepsNumber, gnumber, infoList.get(0), infoList.get(1), infoList.get(2)));
             loadTable();
+            // Check if the rival already won the game !!!
+            if(infoList.get(0) == 4) {
+                resBtn.setDisable(true);
+                resBtn.setText("They won the game :((");
+            }
             // Reset all list
             rivalGuessList = new ArrayList<>();
             infoList = new ArrayList<>();
@@ -147,7 +155,7 @@ public class gameController implements Initializable {
             alert.setHeaderText("Invalid input from user");
             alert.setContentText("The number provided by rivals is not in correct format");
             alert.showAndWait();
-        }
+            }
     }
 
     public void generatefgClicked(ActionEvent actionEvent) {
@@ -238,7 +246,10 @@ public class gameController implements Initializable {
         missBox.setValue(0);
         nextGuessBtn.setDisable(false);
         nextGuessBtn.setText("Get Next Guess");
+        resBtn.setDisable(false);
+        resBtn.setText("Get Result");
         guessBtn.setText("Generate First Guess");
+
 
         // Reset all variable
         snumberList = new ArrayList<>();
@@ -283,12 +294,13 @@ public class gameController implements Initializable {
     public static Boolean isValidNumber(String input) {
         // Loop through the string to check each character
         if (input.length() != 4) {
+            System.out.println("1");
             return Boolean.FALSE;
         }
         for (int i = 0; i < input.length(); i++) {
             char d = input.charAt(i);
             // Check if the character is a digits
-            if (d >= '0' && d < '9') {} else {
+            if (d >= '0' && d <= '9') {} else {
                 return Boolean.FALSE;
             }
         }
